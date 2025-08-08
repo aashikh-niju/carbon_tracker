@@ -6,8 +6,16 @@ class CarbonFootprintCalculator {
         this.questions = this.initializeQuestions();
         this.emissionFactors = this.initializeEmissionFactors();
         
-        this.initializeEventListeners();
-        this.showQuestion();
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.initializeEventListeners();
+                this.showQuestion();
+            });
+        } else {
+            this.initializeEventListeners();
+            this.showQuestion();
+        }
     }
 
     initializeQuestions() {
@@ -124,55 +132,82 @@ class CarbonFootprintCalculator {
     }
 
     initializeEventListeners() {
-        document.getElementById('nextBtn').addEventListener('click', () => this.nextQuestion());
-        document.getElementById('prevBtn').addEventListener('click', () => this.previousQuestion());
-        document.getElementById('calculateBtn').addEventListener('click', () => this.calculateFootprint());
-        document.getElementById('restartBtn').addEventListener('click', () => this.restart());
+        try {
+            const nextBtn = document.getElementById('nextBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            
+            if (nextBtn) nextBtn.addEventListener('click', () => this.nextQuestion());
+            if (prevBtn) prevBtn.addEventListener('click', () => this.previousQuestion());
+            if (calculateBtn) calculateBtn.addEventListener('click', () => this.calculateFootprint());
+            if (restartBtn) restartBtn.addEventListener('click', () => this.restart());
+            
+            console.log('Event listeners initialized successfully');
+        } catch (error) {
+            console.error('Error initializing event listeners:', error);
+        }
     }
 
     showQuestion() {
-        const question = this.questions[this.currentQuestion];
-        const container = document.getElementById('questionContainer');
-        
-        let inputHtml = '';
-        if (question.type === 'number') {
-            inputHtml = `
-                <div class="input-group">
-                    <label for="${question.id}">${question.question}</label>
-                    <input type="number" id="${question.id}" placeholder="${question.placeholder}" 
-                           value="${this.answers[question.id] || ''}" min="0" step="0.1">
-                    <small>${question.description}</small>
-                </div>
-            `;
-        } else if (question.type === 'select') {
-            const options = question.options.map(opt => 
-                `<option value="${opt.value}" ${this.answers[question.id] == opt.value ? 'selected' : ''}>
-                    ${opt.label}
-                </option>`
-            ).join('');
+        try {
+            const question = this.questions[this.currentQuestion];
+            const container = document.getElementById('questionContainer');
             
-            inputHtml = `
-                <div class="input-group">
-                    <label for="${question.id}">${question.question}</label>
-                    <select id="${question.id}">
-                        <option value="">Select an option</option>
-                        ${options}
-                    </select>
-                    <small>${question.description}</small>
+            if (!container) {
+                console.error('Question container not found');
+                return;
+            }
+            
+            if (!question) {
+                console.error('Question not found for index:', this.currentQuestion);
+                return;
+            }
+            
+            let inputHtml = '';
+            if (question.type === 'number') {
+                inputHtml = `
+                    <div class="input-group">
+                        <label for="${question.id}">${question.question}</label>
+                        <input type="number" id="${question.id}" placeholder="${question.placeholder}" 
+                               value="${this.answers[question.id] || ''}" min="0" step="0.1">
+                        <small>${question.description}</small>
+                    </div>
+                `;
+            } else if (question.type === 'select') {
+                const options = question.options.map(opt => 
+                    `<option value="${opt.value}" ${this.answers[question.id] == opt.value ? 'selected' : ''}>
+                        ${opt.label}
+                    </option>`
+                ).join('');
+                
+                inputHtml = `
+                    <div class="input-group">
+                        <label for="${question.id}">${question.question}</label>
+                        <select id="${question.id}">
+                            <option value="">Select an option</option>
+                            ${options}
+                        </select>
+                        <small>${question.description}</small>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="question">
+                    <h3>${question.title}</h3>
+                    <p>${question.description}</p>
+                    ${inputHtml}
                 </div>
             `;
+
+            this.updateProgress();
+            this.updateNavigationButtons();
+            
+            console.log('Question displayed successfully:', question.title);
+        } catch (error) {
+            console.error('Error showing question:', error);
         }
-
-        container.innerHTML = `
-            <div class="question">
-                <h3>${question.title}</h3>
-                <p>${question.description}</p>
-                ${inputHtml}
-            </div>
-        `;
-
-        this.updateProgress();
-        this.updateNavigationButtons();
     }
 
     updateProgress() {
