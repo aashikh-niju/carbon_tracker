@@ -1,0 +1,25 @@
+{
+  "name": "ai-carbon-footprint-calculator",
+  "version": "1.0.0",
+  "description": "AI-powered Carbon Footprint Calculator with personalized tips",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000"
+  },
+  "keywords": [
+    "carbon-footprint",
+    "environmental",
+    "sustainability",
+    "ai",
+    "calculator",
+    "climate-change"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ai-carbon-footprint-calculator.git"
+  },
+  "homepage": "https://your-vercel-app.vercel.app"
+}
